@@ -1,16 +1,13 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-// ✅ FIX: Import useFormState and useFormStatus from 'react-dom'
-import { useFormState, useFormStatus } from 'react-dom';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { User, Phone, Lock, Map, MapPin, Loader2, Languages } from 'lucide-react';
-import { signUpUser, FormState } from '@/lib/action/signup';
 
 const locations: { Maharashtra: string[] } = {
   "Maharashtra": [ "Ahmednagar", "Akola", "Amravati", "Aurangabad (Chhatrapati Sambhajinagar)", "Beed", "Bhandara", "Buldhana", "Chandrapur", "Dhule", "Gadchiroli", "Gondia", "Hingoli", "Jalgaon", "Jalna", "Kolhapur", "Latur", "Mumbai City", "Mumbai Suburban", "Nagpur", "Nanded", "Nandurbar", "Nashik", "Osmanabad (Dharashiv)", "Palghar", "Parbhani", "Pune", "Raigad", "Ratnagiri", "Sangli", "Satara", "Sindhudurg", "Solapur", "Thane", "Wardha", "Washim", "Yavatmal" ]
@@ -21,37 +18,64 @@ const languageOptions = [
   { value: 'mr', label: 'Marathi (मराठी)' },
 ];
 
-const initialState: FormState = {
-  success: false,
-  message: '',
-};
-
-function SubmitButton() {
-  const { pending } = useFormStatus();
-  return (
-    <Button type="submit" className="w-full bg-green-600 hover:bg-green-700" disabled={pending}>
-      {pending ? (
-        <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Signing Up...</>
-      ) : ( 'Sign Up' )}
-    </Button>
-  );
-}
-
 const SignUpPage = () => {
   const router = useRouter();
-  // ✅ FIX: Revert to useFormState
-  const [state, formAction] = useFormState(signUpUser, initialState);
+  
+  // State for controlled inputs
+  const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
+  const [password, setPassword] = useState('');
+  const [city, setCity] = useState('');
   const [selectedDistrict, setSelectedDistrict] = useState('');
   const [selectedLanguage, setSelectedLanguage] = useState('');
+  
+  // State for submission and errors
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
-  useEffect(() => {
-    if (state.success) {
-      const timer = setTimeout(() => {
-        router.push('/dashboard');
-      }, 1000); 
-      return () => clearTimeout(timer);
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setError('');
+
+    const newUser = {
+      name,
+      phone,
+      password, // Note: In a real app, never store plain text passwords.
+      state: 'Maharashtra',
+      district: selectedDistrict,
+      city,
+      language: selectedLanguage,
+    };
+
+    try {
+      // Get existing users from local storage, or initialize an empty array
+      const storedUsers = JSON.parse(localStorage.getItem('users') || '[]');
+      
+      // Check if a user with this phone number already exists
+      const userExists = storedUsers.some((user: any) => user.phone === newUser.phone);
+
+      if (userExists) {
+        setError('A user with this phone number already exists.');
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Add the new user and save back to local storage
+      const updatedUsers = [...storedUsers, newUser];
+      localStorage.setItem('users', JSON.stringify(updatedUsers));
+      
+      // Simulate session creation by storing current user phone
+      localStorage.setItem('currentUser', JSON.stringify(newUser));
+
+      // Redirect to dashboard on success
+      router.push('/field-details');
+
+    } catch (err) {
+      setError('Failed to save data. Please try again.');
+      setIsSubmitting(false);
     }
-  }, [state.success, router]);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
@@ -61,14 +85,15 @@ const SignUpPage = () => {
           <CardDescription>Join our platform for AI-driven farm insights in Maharashtra.</CardDescription>
         </CardHeader>
         <CardContent>
-          <form action={formAction}>
+          {/* Use a client-side onSubmit handler */}
+          <form onSubmit={handleSubmit}>
             <div className="space-y-4">
               
               <div className="space-y-2">
                 <Label htmlFor="name">Full Name</Label>
                 <div className="relative flex items-center">
                   <User className="absolute left-3 h-4 w-4 text-gray-500" />
-                  <Input id="name" name="name" type="text" placeholder="e.g., Suresh Patil" className="pl-10" required />
+                  <Input id="name" name="name" type="text" placeholder="e.g., Suresh Patil" className="pl-10" value={name} onChange={(e) => setName(e.target.value)} required />
                 </div>
               </div>
 
@@ -76,7 +101,7 @@ const SignUpPage = () => {
                 <Label htmlFor="phone">Phone Number</Label>
                 <div className="relative flex items-center">
                   <Phone className="absolute left-3 h-4 w-4 text-gray-500" />
-                  <Input id="phone" name="phone" type="tel" placeholder="Enter your 10-digit mobile number" className="pl-10" required />
+                  <Input id="phone" name="phone" type="tel" placeholder="Enter your 10-digit mobile number" className="pl-10" value={phone} onChange={(e) => setPhone(e.target.value)} required />
                 </div>
               </div>
 
@@ -84,11 +109,9 @@ const SignUpPage = () => {
                 <Label htmlFor="password">Password</Label>
                 <div className="relative flex items-center">
                   <Lock className="absolute left-3 h-4 w-4 text-gray-500" />
-                  <Input id="password" name="password" type="password" placeholder="Create a strong password" className="pl-10" required />
+                  <Input id="password" name="password" type="password" placeholder="Create a strong password" className="pl-10" value={password} onChange={(e) => setPassword(e.target.value)} required />
                 </div>
               </div>
-
-              <input type="hidden" name="state" value="Maharashtra" />
 
               <div className="space-y-2">
                 <Label htmlFor="district">District</Label>
@@ -111,7 +134,7 @@ const SignUpPage = () => {
                 <Label htmlFor="city">City / Town / Village</Label>
                 <div className="relative flex items-center">
                   <MapPin className="absolute left-3 h-4 w-4 text-gray-500" />
-                  <Input id="city" name="city" type="text" placeholder="e.g., Baramati" className="pl-10" required />
+                  <Input id="city" name="city" type="text" placeholder="e.g., Baramati" className="pl-10" value={city} onChange={(e) => setCity(e.target.value)} required />
                 </div>
               </div>
               
@@ -134,12 +157,18 @@ const SignUpPage = () => {
                 </Select>
               </div>
               
-              {state.message && (
-                <p className={`text-sm text-center font-medium ${state.success ? 'text-green-600' : 'text-red-600'}`}>
-                  {state.message}
+              {/* Display client-side error message */}
+              {error && (
+                <p className="text-sm text-center font-medium text-red-600">
+                  {error}
                 </p>
               )}
-              <SubmitButton />
+
+              <Button type="submit" className="w-full bg-green-600 hover:bg-green-700" disabled={isSubmitting}>
+                {isSubmitting ? (
+                  <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Signing Up...</>
+                ) : ( 'Sign Up' )}
+              </Button>
             </div>
           </form>
         </CardContent>

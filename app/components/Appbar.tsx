@@ -1,32 +1,54 @@
 "use client";
 
-import React from 'react';
-import { Button } from '@/components/ui/button';
-import { Menu, LogIn, LogOut } from 'lucide-react';
-import { useSession, signIn, signOut } from 'next-auth/react';
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Skeleton } from "@/components/ui/skeleton"; // For loading state
+import { Button } from '@/components/ui/button';
+import { Skeleton } from "@/components/ui/skeleton";
+import { Menu, LogIn, LogOut } from 'lucide-react';
 
-// A dedicated component for the authentication button
 const AuthButton = () => {
-  const { data: session, status } = useSession();
+  const [user, setUser] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
 
-  // Show a skeleton loader while the session is being fetched
-  if (status === 'loading') {
+  useEffect(() => {
+    // Local storage is only accessible on the client, so we use useEffect
+    try {
+      const storedUser = localStorage.getItem('currentUser');
+      if (storedUser) {
+        setUser(JSON.parse(storedUser));
+      }
+    } catch (error) {
+      console.error("Failed to parse user from local storage", error);
+    }
+    setIsLoading(false);
+  }, []);
+
+  const handleSignOut = () => {
+    localStorage.removeItem('currentUser');
+    setUser(null);
+    router.push('/'); // Redirect to home page after signing out
+  };
+
+  if (isLoading) {
     return <Skeleton className="h-10 w-24" />;
   }
 
-  // If the user is signed in, show a "Sign Out" button
-  if (session) {
+  if (user) {
     return (
-      <Button onClick={() => signOut()} variant="destructive">
-        <LogOut className="mr-2 h-4 w-4" />
-        Sign Out
-      </Button>
+      <div className="flex items-center gap-4">
+        <span className="text-sm font-medium text-gray-700 hidden sm:inline">
+          Welcome, {user.name}!
+        </span>
+        <Button onClick={handleSignOut} variant="destructive">
+          <LogOut className="mr-2 h-4 w-4" />
+          Sign Out
+        </Button>
+      </div>
     );
   }
 
-  // If the user is not signed in, show a "Sign In" button
   return (
     <Button asChild className="bg-green-600 hover:bg-green-700 text-white">
       <Link href="/auth/signin">
@@ -37,14 +59,12 @@ const AuthButton = () => {
   );
 };
 
-
 export default function Appbar() {
   return (
     <nav className="bg-white shadow-sm sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
-            {/* It's better to reference images from the public folder with a leading slash */}
             <img 
               src="/Lg.png" 
               alt="Fasal Logo" 
@@ -58,12 +78,10 @@ export default function Appbar() {
             <a href="#farmers" className="text-gray-700 hover:text-green-600 font-medium">For Farmers</a>
             <a href="#contact" className="text-gray-700 hover:text-green-600 font-medium">Contact</a>
             
-            {/* The old button is replaced with our new dynamic AuthButton */}
             <AuthButton />
           </div>
           
           <div className="md:hidden">
-            {/* You might want to include the AuthButton in your mobile menu as well */}
             <Menu className="h-6 w-6 text-gray-700" />
           </div>
         </div>

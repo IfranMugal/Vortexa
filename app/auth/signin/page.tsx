@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { signIn } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,36 +9,29 @@ import { Label } from '@/components/ui/label';
 import { Phone, Lock, Loader2 } from 'lucide-react';
 
 const SignInPage = () => {
+  const router = useRouter();
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError('');
 
     try {
-      // Let NextAuth handle the redirect by providing a callbackUrl.
-      // On success, the user will be sent to '/dashboard'.
-      // On failure, an error will be thrown and caught below.
-      const result = await signIn('credentials', {
-        phone,
-        password,
-        redirect: true, // This is the default, but can be explicit
-        callbackUrl: '/dashboard',
-      });
-      
-      // This part will only be reached if there's an error and redirect is true
-      if (result?.error) {
+      const storedUsers = JSON.parse(localStorage.getItem('users') || '[]');
+      const user = storedUsers.find((u: any) => u.phone === phone);
+
+      if (user && user.password === password) {
+        localStorage.setItem('currentUser', JSON.stringify(user));
+        router.push('/dashboard');
+      } else {
         setError('Invalid phone number or password. Please try again.');
         setIsSubmitting(false);
       }
-
     } catch (err) {
-      // This catch block is less likely to be hit with redirect: true,
-      // but is good for catching network errors or unexpected issues.
       console.error('Sign-in failed:', err);
       setError('An unexpected error occurred. Please try again later.');
       setIsSubmitting(false);
