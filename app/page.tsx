@@ -1,18 +1,14 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { 
   CloudRain, 
   BarChart2, 
   Calendar, 
   Droplets, 
-  Users2,
   ArrowRight,
   Sprout,
-  Quote,
   Wheat,
-  Target
 } from 'lucide-react';
 
 const FasalLanding = () => {

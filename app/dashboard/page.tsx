@@ -50,28 +50,6 @@ const FasalDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <Sprout className="h-8 w-8 text-green-600 mr-3" />
-              <span className="text-2xl font-semibold text-gray-900">Fasal</span>
-            </div>
-            
-            <div className="flex items-center space-x-4">
-              <Button variant="ghost" size="sm" className="relative">
-                <Bell className="h-5 w-5 text-gray-600" />
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">3</span>
-              </Button>
-              <div className="flex items-center space-x-2 bg-gray-100 rounded-full px-3 py-2">
-                <User className="h-5 w-5 text-gray-600" />
-                <span className="text-sm font-medium text-gray-700">Ramesh Kumar</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Welcome Section */}
