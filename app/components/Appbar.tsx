@@ -10,8 +10,11 @@ export default function Appbar(){
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
-            <Sprout className="h-8 w-8 text-green-600 mr-3" />
-            <span className="text-2xl font-semibold text-gray-900">Fasal</span>
+            <img 
+              src="./Lg.png" 
+              alt="Fasal Logo" 
+              className="h-48 w-auto" 
+            />
           </div>
           
           <div className="hidden md:flex items-center space-x-8">

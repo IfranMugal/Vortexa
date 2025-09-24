@@ -10,38 +10,55 @@ import {
   Sprout,
   Wheat,
 } from 'lucide-react';
+import {Facebook, Twitter, Linkedin } from 'lucide-react'; 
 
 const FasalLanding = () => {
   return (
     <div className="bg-white">
       
       {/* Hero Section */}
-      <section className="pt-20 pb-16 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
-              Know When to Plant.
-              <br />
-              <span className="text-green-600">Know When to Harvest.</span>
-            </h1>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed mb-8">
-              Fasal helps farmers make better decisions by combining local weather data with your field's history. 
-              No more guessing – just better crops and higher profits.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" className="bg-green-600 hover:bg-green-700 text-white px-8 py-3">
-                Start Using Fasal
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-              <Button variant="outline" size="lg" className="border-gray-300 text-gray-700 hover:bg-gray-50 px-8 py-3">
-                See How It Works
-              </Button>
-            </div>
-          </div>
-          
-          
-        </div>
-      </section>
+      {/* Hero Section */}
+<section className="relative h-screen flex items-center justify-center text-center px-4 sm:px-6 lg:px-8 overflow-hidden">
+  {/* Video Background */}
+  <video 
+    autoPlay 
+    loop 
+    muted 
+    playsInline
+    className="absolute top-0 left-0 w-full h-full object-cover z-10"
+  >
+    {/* IMPORTANT: Replace this with the path to your own video file */}
+    <source src="https://www.cropin.com/wp-content/uploads/2025/09/home-banner-video-updated-compressed.mp4" type="video/mp4" />
+    Your browser does not support the video tag.
+  </video>
+
+  {/* Dark Overlay for better text readability */}
+  <div className="absolute top-0 left-0 w-full h-full bg-black/60 z-20"></div>
+
+  {/* Content */}
+  <div className="relative z-30 max-w-6xl mx-auto">
+    <div className="text-center mb-12">
+      <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
+        Know When to Plant.
+        <br />
+        <span className="text-green-400">Know When to Harvest.</span>
+      </h1>
+      <p className="text-xl text-gray-200 max-w-3xl mx-auto leading-relaxed mb-8">
+        Fasal helps farmers make better decisions by combining local weather data with your field's history. 
+        No more guessing – just better crops and higher profits.
+      </p>
+      <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        <Button size="lg" className="bg-green-600 hover:bg-green-700 text-white px-8 py-3">
+          Start Using Fasal
+          <ArrowRight className="ml-2 h-5 w-5" />
+        </Button>
+         <Button size="lg" className="bg-green-600 hover:bg-green-700 text-white px-8 py-3">
+          See How It Works
+        </Button>
+      </div>
+    </div>
+  </div>
+</section>
 
       {/* What Fasal Does */}
       <section id="about" className="py-16 bg-gray-50">
@@ -188,19 +205,35 @@ const FasalLanding = () => {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-8">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="flex items-center mb-4 md:mb-0">
-              <Sprout className="h-6 w-6 text-green-500 mr-2" />
-              <span className="text-lg font-semibold">Fasal</span>
-            </div>
-            <p className="text-gray-400 text-sm">
-              © 2024 Fasal. Helping farmers grow better.
-            </p>
-          </div>
-        </div>
-      </footer>
+      <footer className="bg-gray-900 text-gray-400 py-8 px-4 sm:px-6 lg:px-8">
+  <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between">
+    {/* Left Section: Logo and Copyright */}
+    <div className="flex flex-col md:flex-row items-center mb-4 md:mb-0 space-y-2 md:space-y-0 md:space-x-6">
+      
+      <p className="text-sm">
+        &copy; {new Date().getFullYear()} Fasal. All rights reserved.
+      </p>
+    </div>
+
+    {/* Right Section: Essential Links and Optional Social Media */}
+    <div className="flex items-center space-x-6">
+      {/* Essential Legal Links */}
+      <a href="#" className="text-gray-400 hover:text-green-500 text-sm">Privacy Policy</a>
+      <a href="#" className="text-gray-400 hover:text-green-500 text-sm">Terms of Service</a>
+
+      
+      <a href="#" className="text-gray-400 hover:text-green-500">
+        <Facebook className="h-5 w-5" />
+      </a>
+      <a href="#" className="text-gray-400 hover:text-green-500">
+        <Twitter className="h-5 w-5" />
+      </a>
+      <a href="#" className="text-gray-400 hover:text-green-500">
+        <Linkedin className="h-5 w-5" />
+      </a>
+    </div>
+  </div>
+</footer>
     </div>
   );
 };
