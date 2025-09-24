@@ -18,6 +18,7 @@ import {
   Wheat
 } from 'lucide-react';
 
+// Define types for our local storage data
 interface User {
   id: string;
   name: string;
@@ -46,11 +47,12 @@ const FasalDashboard = () => {
   const [weatherData, setWeatherData] = useState<any[]>([]);
   const [weatherLoading, setWeatherLoading] = useState(true);
   const [weatherError, setWeatherError] = useState<string | null>(null);
-
-  const alerts = [
-    { type: 'warning', message: 'Heavy rain expected on Thursday. Consider delaying irrigation.', time: '2 hours ago' },
-    { type: 'success', message: 'Irrigation completed for Field 1.', time: '6 hours ago' }
-  ];
+  
+  // Set initial static alerts in state
+  const [alerts, setAlerts] = useState([
+    { type: 'info', message: 'Wheat prices increased by ₹50 per quintal', time: '4 hours ago' },
+    { type: 'success', message: 'Irrigation completed for Field 1', time: '6 hours ago' }
+  ]);
 
   useEffect(() => {
     const userJson = localStorage.getItem('currentUser');
@@ -75,6 +77,33 @@ const FasalDashboard = () => {
 
     setIsLoading(false);
 
+    // Function to generate alerts from weather data
+    const generateWeatherAlerts = (forecast: any[]) => {
+      const weatherBasedAlerts: any[] = [];
+      forecast.forEach(day => {
+        const dayName = new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(new Date(`${day.date}T00:00:00`));
+
+        // Alert for heavy rain (e.g., > 10mm)
+        if (day.precipitation > 10) {
+          weatherBasedAlerts.push({
+            type: 'warning',
+            message: `Heavy rain expected on ${dayName}. Ensure proper field drainage.`,
+            time: 'Weather Forecast'
+          });
+        }
+        
+        // Alert for high temperature (e.g., > 35°C)
+        if (day.temperature_2m > 35) {
+          weatherBasedAlerts.push({
+            type: 'warning',
+            message: `High heat on ${dayName} (${Math.round(day.temperature_2m)}°C). Check for crop stress.`,
+            time: 'Weather Forecast'
+          });
+        }
+      });
+      return weatherBasedAlerts;
+    };
+
     const fetchWeather = async () => {
       setWeatherLoading(true);
       setWeatherError(null);
@@ -96,10 +125,12 @@ const FasalDashboard = () => {
         const data = await response.json();
         
         if (!Array.isArray(data)) throw new Error('Unexpected API response format.');
+
+        // Generate dynamic alerts and prepend them to the existing alerts
+        const newAlerts = generateWeatherAlerts(data);
+        setAlerts(currentAlerts => [...newAlerts, ...currentAlerts.filter(a => a.time !== 'Weather Forecast')]);
         
-        const formattedData = data
-          .map((item: any, index: number) => {
-            // FIX: Use the 'date' string directly. Add 'T00:00:00' to avoid timezone issues.
+        const formattedData = data.map((item: any, index: number) => {
             const date = new Date(`${item.date}T00:00:00`);
             if (isNaN(date.getTime())) return null;
 
@@ -107,18 +138,15 @@ const FasalDashboard = () => {
             if (index === 0) dayName = 'Today';
             if (index === 1) dayName = 'Tomorrow';
             
-            // FIX: Determine condition and icon based on precipitation
             const isRainy = item.precipitation > 0.1;
             
             return {
               day: dayName,
-              // FIX: Use 'temperature_2m' and round it
               temp: `${Math.round(item.temperature_2m)}°C`,
               condition: isRainy ? 'Rain' : 'Clear',
               icon: isRainy ? '🌧️' : '☀️',
             };
-          })
-          .filter(Boolean); // Remove any items that failed to parse
+          }).filter(Boolean); 
         
         setWeatherData(formattedData);
       } catch (error: any) {
@@ -157,6 +185,7 @@ const FasalDashboard = () => {
           </div>
         </div>
 
+        {/* Quick Stats and other sections remain the same */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
            <Card className="bg-gradient-to-r from-green-500 to-green-600 text-white">
             <CardContent className="p-6">
@@ -330,16 +359,19 @@ const FasalDashboard = () => {
               <CardHeader><CardTitle className="text-lg">Recent Alerts</CardTitle></CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {alerts.map((alert, index) => (
+                  {alerts.length > 0 ? alerts.map((alert, index) => (
                     <div key={index} className="flex space-x-3 p-3 rounded-lg bg-gray-50">
                       {alert.type === 'warning' && <AlertTriangle className="h-5 w-5 text-yellow-600 mt-0.5 flex-shrink-0" />}
+                      {alert.type === 'info' && <TrendingUp className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />}
                       {alert.type === 'success' && <CheckCircle2 className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />}
                       <div className="flex-1">
                         <p className="text-sm text-gray-800">{alert.message}</p>
                         <p className="text-xs text-gray-500 mt-1">{alert.time}</p>
                       </div>
                     </div>
-                  ))}
+                  )) : (
+                    <p className="text-sm text-gray-500 text-center py-4">No new alerts.</p>
+                  )}
                 </div>
               </CardContent>
             </Card>
