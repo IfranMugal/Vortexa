@@ -1,5 +1,7 @@
-"use client"
+"use client";
+
 import React, { useState } from 'react';
+import Link from 'next/link'; // 1. Import the Link component
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { 
@@ -169,8 +171,11 @@ const FasalDashboard = () => {
                       <p className="text-xs text-blue-600 mt-1">Based on weather forecast and soil conditions</p>
                     </div>
                     
-                    <Button className="w-full bg-green-600 hover:bg-green-700 text-white">
-                      Schedule Irrigation
+                    {/* 2. UPDATE: Button is now wrapped with Link and has asChild prop */}
+                    <Button asChild className="w-full bg-green-600 hover:bg-green-700 text-white">
+                      <Link href="/irrigation">
+                        Schedule Irrigation
+                      </Link>
                     </Button>
                   </div>
                 </CardContent>
@@ -190,7 +195,7 @@ const FasalDashboard = () => {
                         <CheckCircle2 className="h-6 w-6" />
                       </div>
                       <p className="text-sm font-medium">Planted</p>
-                      <p className="text-xs text-gray-500">Oct 15</p>
+                      <p className="text-xs text-gray-500">Aug 15, 2025</p>
                     </div>
                     
                     <div className="text-center">
@@ -198,7 +203,7 @@ const FasalDashboard = () => {
                         <CheckCircle2 className="h-6 w-6" />
                       </div>
                       <p className="text-sm font-medium">Germination</p>
-                      <p className="text-xs text-gray-500">Oct 25</p>
+                      <p className="text-xs text-gray-500">Aug 25, 2025</p>
                     </div>
                     
                     <div className="text-center">
@@ -214,7 +219,7 @@ const FasalDashboard = () => {
                         <Calendar className="h-6 w-6" />
                       </div>
                       <p className="text-sm font-medium">Harvest</p>
-                      <p className="text-xs text-gray-500">Mar 15</p>
+                      <p className="text-xs text-gray-500">Nov 15, 2025</p>
                     </div>
                   </div>
                   
